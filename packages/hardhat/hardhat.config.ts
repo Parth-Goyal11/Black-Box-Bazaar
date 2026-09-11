@@ -77,7 +77,7 @@ export default defineConfig({
     },
     sepolia: {
       type: "http",
-      url: `https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`,
+      url: `https://sepolia.infura.io/v3/${providerApiKey}`,
       accounts: [deployerPrivateKey],
     },
     optimism: {

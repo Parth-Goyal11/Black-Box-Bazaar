@@ -5,14 +5,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
-import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
+import { useAccount } from "wagmi";
+import { Bars3Icon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
-import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { useOutsideClick, useScaffoldReadContract, useTargetNetwork } from "~~/hooks/scaffold-eth";
 
 type HeaderMenuLink = {
   label: string;
   href: string;
   icon?: React.ReactNode;
+  /** Only shown once the connected wallet is confirmed to be the on-chain arbiter. */
+  adminOnly?: boolean;
 };
 
 export const menuLinks: HeaderMenuLink[] = [
@@ -21,18 +24,39 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/",
   },
   {
-    label: "Debug Contracts",
-    href: "/debug",
-    icon: <BugAntIcon className="h-4 w-4" />,
+    label: "Marketplace",
+    href: "/marketplace",
+  },
+  {
+    label: "Your Listings",
+    href: "/marketplace/your-listings",
+  },
+  {
+    label: "Disputable",
+    href: "/marketplace/disputable",
+  },
+  {
+    label: "My Purchases",
+    href: "/marketplace/my-purchases",
+  },
+  {
+    label: "Admin",
+    href: "/marketplace/admin",
+    adminOnly: true,
   },
 ];
 
 export const HeaderMenuLinks = () => {
   const pathname = usePathname();
+  const { address: connectedAddress } = useAccount();
+  const { data: arbiter } = useScaffoldReadContract({ contractName: "EvalMarket", functionName: "arbiter" });
+  const isArbiter = !!connectedAddress && !!arbiter && connectedAddress.toLowerCase() === arbiter.toLowerCase();
+
+  const visibleLinks = menuLinks.filter(link => !link.adminOnly || isArbiter);
 
   return (
     <>
-      {menuLinks.map(({ label, href, icon }) => {
+      {visibleLinks.map(({ label, href, icon }) => {
         const isActive = pathname === href;
         return (
           <li key={href} className="h-full">
@@ -66,7 +90,7 @@ export const Header = () => {
   });
 
   return (
-    <div className="sticky lg:static top-0 navbar bg-base-100 min-h-16 shrink-0 justify-between z-20 border-b-2 border-base-300 p-0 sm:px-2">
+    <div className="sticky lg:static top-0 navbar bg-base-100 min-h-16 shrink-0 justify-between gap-4 z-20 border-b-2 border-base-300 p-0 sm:px-2">
       <div className="navbar-start w-auto self-stretch">
         <details className="dropdown" ref={burgerMenuRef}>
           <summary className="ml-1 btn btn-ghost lg:hidden hover:bg-transparent">
@@ -94,7 +118,7 @@ export const Header = () => {
           <HeaderMenuLinks />
         </ul>
       </div>
-      <div className="navbar-end grow mr-4">
+      <div className="navbar-end w-auto shrink-0 items-center gap-3 mr-4">
         <RainbowKitCustomConnectButton />
         {isLocalNetwork && <FaucetButton />}
       </div>

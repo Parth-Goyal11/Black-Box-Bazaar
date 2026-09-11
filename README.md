@@ -70,6 +70,29 @@ Run smart contract test with `yarn hardhat:test`
 - Edit your deployment scripts in `packages/hardhat/deploy`
 
 
+## Autonomous Agents (EvalMarket demo)
+
+This is the "autonomous agents buying and selling" demonstration referenced in the assignment brief: two standalone Node.js scripts that interact with the deployed `EvalMarket` contract on Sepolia directly over ethers.js — no browser, no MetaMask, no UI involved.
+
+- `packages/hardhat/scripts/agents/sellerAgent.ts` — connects with a wallet loaded from `SELLER_AGENT_PRIVATE_KEY` and autonomously calls `createListing()` with a sample model-eval listing (model name/version, eval category, price, and keccak256 commitments to a sample report and methodology), logging the resulting `listingId`.
+- `packages/hardhat/scripts/agents/buyerAgent.ts` — connects with a wallet loaded from `BUYER_AGENT_PRIVATE_KEY`, reads every listing on-chain, and for each active/non-expired one looks up the seller's reputation via `getReputation()`. It only calls `purchase()` when `successfulSales >= disputesLost` — an autonomous decision driven by on-chain reputation, not a random or scripted click-through — logging its reasoning for every listing it considers.
+
+Both scripts read the Sepolia RPC URL from `packages/hardhat/hardhat.config.ts` (the same config used by `yarn deploy`) and the contract address/ABI from `packages/hardhat/deployments/sepolia/EvalMarket.json`, so they always target whatever is currently deployed.
+
+To run them, add two **separate, funded Sepolia testnet** private keys to `packages/hardhat/.env` (do not reuse the deployer key):
+
+```
+SELLER_AGENT_PRIVATE_KEY=0x...
+BUYER_AGENT_PRIVATE_KEY=0x...
+```
+
+Then, from `packages/hardhat`:
+
+```
+yarn agent:seller   # or: npx tsx scripts/agents/sellerAgent.ts
+yarn agent:buyer    # or: npx tsx scripts/agents/buyerAgent.ts
+```
+
 ## Documentation
 
 Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.

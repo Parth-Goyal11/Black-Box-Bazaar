@@ -1,8 +1,7 @@
 import { deployScript, artifacts } from "../rocketh/deploy.js";
 
 /**
- * Deploys a contract named "YourContract" using the deployer account and
- * constructor arguments set to the deployer address
+ * Deploys the EvalMarket contract using the deployer account
  *
  * @param env Rocketh environment object.
  */
@@ -20,20 +19,15 @@ export default deployScript(
     */
     const { deployer } = env.namedAccounts;
 
-    const yourContract = await env.deploy("YourContract", {
+    await env.deploy("EvalMarket", {
       account: deployer,
-      artifact: artifacts.YourContract,
-      // Contract constructor arguments
-      args: [deployer],
+      artifact: artifacts.EvalMarket,
+      args: [],
     });
-
-    // Read back from the deployed contract
-    const greeting = await env.read(yourContract, { functionName: "greeting" });
-    console.log("👋 Initial greeting:", greeting);
   },
   {
     // Tags are useful if you have multiple deploy files and only want to run some of them.
-    // e.g. yarn deploy --tags YourContract
-    tags: ["YourContract"],
+    // e.g. yarn deploy --tags EvalMarket
+    tags: ["EvalMarket"],
   },
 );
