@@ -10,8 +10,8 @@ import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata = getMetadata({
-  title: "Scaffold-ETH 2 App",
-  description: "Built with 🏗 Scaffold-ETH 2",
+  title: "EvalMarket",
+  description: "A marketplace for AI model evaluation reports",
 });
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
